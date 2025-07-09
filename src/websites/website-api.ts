@@ -1,4 +1,6 @@
 import { HttpClient } from "../http-client";
+import { ApiKey } from "./types/api-key";
+import { CreateApiKey } from "./types/create-api-key";
 import { Website } from "./types/website.type";
 
 export class WebsiteApi {
@@ -29,9 +31,9 @@ export class WebsiteApi {
 
   public async deleteWhitelistedDomain(domain: string): Promise<void> {
     await this.httpClient.update<void>(
-      `/v2/3as/websites/${this.#externalWebsiteId}/whitelisted-domains/`,{
-        domain
-        }
+      `/v2/3as/websites/${this.#externalWebsiteId}/whitelisted-domains/`, {
+      domain
+    }
     );
   }
 
@@ -40,5 +42,26 @@ export class WebsiteApi {
       `/v2/3as/websites/${this.#externalWebsiteId}/whitelisted-domains`
     );
     return response.getPayload()
+  }
+
+  public async createApiKey(input: CreateApiKey): Promise<ApiKey> {
+    const response = await this.httpClient.post<ApiKey>(
+      `/v2/3as/websites/${this.#externalWebsiteId}/api-keys`,
+      input,
+    )
+    return response.getPayload()
+  }
+
+  public async listApiKeys(): Promise<ApiKey[]> {
+    const response = await this.httpClient.get<ApiKey[]>(
+      `/v2/3as/websites/${this.#externalWebsiteId}/api-keys`,
+    )
+    return response.getPayload()
+  }
+
+  public async deleteApiKey(id: string): Promise<void> {
+    await this.httpClient.delete(
+      `/v2/3as/websites/${this.#externalWebsiteId}/api-keys/${id}`,
+    )
   }
 }
