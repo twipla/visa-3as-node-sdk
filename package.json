@@ -1,6 +1,6 @@
 {
   "name": "@visitor-analytics/3as-sdk",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "NodeJS SDK for 3AS Companies",
   "author": "os@visitor-analytics.io",
   "license": "MIT",
