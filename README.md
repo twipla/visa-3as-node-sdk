@@ -280,19 +280,65 @@ visa.website(INTP_WEBSITE_ID)->delete();
 #### Add a whitelisted domain
 
 ```js
-visa.website(INTP_WEBSITE_ID)->addWhitelistedDomain(STRING);
+visa.website(INTP_WEBSITE_ID).addWhitelistedDomain(STRING);
 ```
 
 #### Delete a whitelisted domain
 
 ```js
-visa.website(INTP_WEBSITE_ID)->deleteWhitelistedDomain(STRING);
+visa.website(INTP_WEBSITE_ID).deleteWhitelistedDomain(STRING);
 ```
 
 #### List all whitelisted domains
 
 ```js
-visa.website(INTP_WEBSITE_ID)->listWhitelistedDomains();
+visa.website(INTP_WEBSITE_ID).listWhitelistedDomains();
+```
+
+#### Create api key for a website
+
+```js
+visa.website(INTP_WEBSITE_ID).createApiKey({
+  name: string,                 // Name to identify the API key
+  comment?: string,             // Optional description or notes
+  expiresAt?: "2025-07-23T21:00:00.000Z" // Expiration timestamp (ISO 8601); unlimited if omitted
+});
+
+const response = {
+  payload: {
+    id: string,              // Unique ID of the API key
+    name: string,            // Name of the API key
+    apiKey: string,          // The actual API key (only returned once — save it immediately!)
+    comment: string | null,  // Optional comment or description
+    createdAt: string,       // Creation timestamp (ISO string)
+    intpWebsiteId: string,   // Associated website ID
+    intpCustomerId: string   // Associated customer ID
+  }
+}
+⚠️ Note: apiKey is only returned at creation time. Make sure to store it securely — it cannot be retrieved again.
+```
+
+#### List all existing api keys for a website
+
+```js
+visa.website(INTP_WEBSITE_ID).listApiKeys();
+
+const response = {
+  payload: [{
+    id: string,              // Unique ID of the API key
+    name: string,            // Name of the API key
+    comment: string | null,  // Optional comment or description
+    createdAt: string,       // Creation timestamp (ISO string)
+    intpWebsiteId: string,   // Associated website ID
+    intpCustomerId: string   // Associated customer ID
+  }]
+}
+```
+
+#### Delete api key
+
+```js
+visa.website(INTP_WEBSITE_ID).deleteApiKey(id:string);
 ```
 
 ### API for managing a subscription of type `website`
