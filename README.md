@@ -97,6 +97,7 @@ There are currently **two types of subscription** available:
 - [Website](#website-api)
 - [Websites](#websites-api)
 - [Utils](#utils-api)
+- [INTP](#intp-api)
 
 ### INTPCs API
 
@@ -445,6 +446,17 @@ visa.auth.generateINTPAccessToken();
 
 ```js
 visa.auth.generateINTPcAccessToken(INTP_CUSTOMER_ID);
+```
+
+
+### INTP API
+
+Integration partners (INTP) are able to get data about themselves.
+
+#### Get the current INTP configuration
+
+```js
+visa.intp.get();
 ```
 
 ## Dashboard IFrame

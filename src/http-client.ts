@@ -98,6 +98,10 @@ export class HttpClient {
     };
   }
 
+  get host() {
+	return this.#host;
+  }
+
   post = this.#routeCreate("post");
   get = this.#routeCreate("get");
   update = this.#routeCreate("patch");

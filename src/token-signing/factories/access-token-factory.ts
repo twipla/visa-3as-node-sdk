@@ -13,7 +13,7 @@ export class AccessTokenFactory {
       roles: [config.claims.role],
       intp_id: config.claims.intpId,
       intpc_id: config.claims.intpcId,
-      exp: dayjs().add(10, "minutes").unix(),
+      exp: config.expAt || dayjs().add(10, "minutes").unix(),
       iat: dayjs().unix(),
     };
 
@@ -34,4 +34,6 @@ export type AccessTokenConfig = {
     intpId: string;
     intpcId?: string;
   };
+  // unix timestamp (seconds)
+  expAt?: number;
 };

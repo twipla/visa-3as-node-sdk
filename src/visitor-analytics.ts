@@ -8,8 +8,10 @@ import { AuthUtils } from "./common/auth/auth";
 import { IFrameUtils } from "./common/iframe";
 import { PackageApi } from "./packages/package-api";
 import {IntpcSubscriptionsApi, WebsiteSubscriptionsApi} from "./subscriptions/subscriptions-api";
+import {IntpApi} from "./intp";
 
 export class VisitorAnalytics {
+  #intpApi: IntpApi;
   #intpcApi: IntpcApi;
   #intpcsApi: IntpcsApi;
   #packageApi: PackageApi;
@@ -32,6 +34,7 @@ export class VisitorAnalytics {
       logLevel: params.logLevel,
     });
 
+	this.#intpApi = new IntpApi(this.#httpClient);
     this.#intpcApi = new IntpcApi(
       this.#httpClient,
       new IFrameUtils(this.auth, params.env)
@@ -46,6 +49,10 @@ export class VisitorAnalytics {
 
     this.#websiteSubscriptionApi = new WebsiteSubscriptionsApi(this.#httpClient);
     this.#intpcSubscriptionApi = new IntpcSubscriptionsApi(this.#httpClient);
+  }
+
+  get intp(): IntpApi {
+    return this.#intpApi;
   }
 
   get intpcs(): IntpcsApi {
@@ -78,5 +85,10 @@ export class VisitorAnalytics {
 
   get intpcSubscriptions(): IntpcSubscriptionsApi {
     return this.#intpcSubscriptionApi;
+  }
+
+  // For internal use. Don't use it unless you know what you're doing.
+  get gatewayURL(): string {
+	  return this.#httpClient.host;
   }
 }
