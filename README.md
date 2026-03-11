@@ -2,6 +2,31 @@
 
 A simple API wrapper for integrating the Analysis as a Service (3AS) APIs provided by TWIPLA
 
+## Table of Contents
+
+- [Getting started](#getting-started)
+- [Installation](#installation)
+- [How to use the library](#how-to-use-the-library)
+- [Creating an RSA Key pair](#creating-an-rsa-key-pair)
+- [Concepts](#concepts)
+  - [Terms](#terms)
+  - [General](#general)
+  - [Subscription types](#subscription-types)
+  - [Example implementation flow](#example-implementation-flow)
+- [Available APIs](#available-apis)
+  - [INTPCs API](#intpcs-api)
+  - [INTPC API](#intpc-api)
+  - [Packages API](#packages-api)
+  - [Package API](#package-api)
+  - [Websites API](#websites-api)
+  - [Website API](#website-api)
+  - [Website Contributors API](#website-contributors-api)
+  - [Website Subscription API](#api-for-managing-a-subscription-of-type-website)
+  - [INTPC Subscription API](#api-for-managing-a-subscription-of-type-intpc)
+  - [Utils API](#utils-api)
+  - [INTP API](#intp-api)
+- [Dashboard IFrame](#dashboard-iframe)
+
 ## Getting started
 
 1. [Create an RSA Key Pair (PEM format)](#creating-an-rsa-key-pair)
@@ -88,17 +113,6 @@ There are currently **two types of subscription** available:
 1. Display all the available packages using the SDK
 1. After the payment is complete, use the SDK to upgrade the subscription of the website
 
-## Available APIs
-
-- [INTPCs](#intpcs-api)
-- [INTPC](#intpc-api)
-- [Package](#package-api)
-- [Packages](#packages-api)
-- [Website](#website-api)
-- [Websites](#websites-api)
-- [Utils](#utils-api)
-- [INTP](#intp-api)
-
 ### INTPCs API
 
 Integration partners (INTP) are able to get data about their customers (INTPc).
@@ -119,15 +133,15 @@ visa.intpcs.getByIntpCustomerId(INTP_CUSTOMER_ID);
 
 ```javascript
 visa.intpcs.create({
-    intpCustomerId: INTP_CUSTOMER_ID,
-    email: INTP_CUSTOMER_EMAIL,
-    packageId: PACKAGE_UUID,
-    billingDate: ISO_DATE_STRING, // (optional, defaults to current time)
-    website: {
-        intpWebsiteId: INTP_WEBSITE_ID,
-        domain: INTP_WEBSITE_DOMAIN_URI,
-    },
-})
+  intpCustomerId: INTP_CUSTOMER_ID,
+  email: INTP_CUSTOMER_EMAIL,
+  packageId: PACKAGE_UUID,
+  billingDate: ISO_DATE_STRING, // (optional, defaults to current time)
+  website: {
+    intpWebsiteId: INTP_WEBSITE_ID,
+    domain: INTP_WEBSITE_DOMAIN_URI,
+  },
+});
 ```
 
 #### Register an INTPc and start a website level subscription. Each added website will have its own subscription.
@@ -223,32 +237,31 @@ visa.websites.getByIntpWebsiteId(INTP_WEBSITE_ID);
 
 ```js
 visa.websites.create({
-    website: {
-        id: INTP_WEBSITE_ID,
-        domain: INTP_WEBSITE_DOMAIN,
-        package: {
-            id: PACKAGE_UUID,
-            billingDate: ISO_DATE_STRING, // (optional, defaults to current time)
-        }
+  website: {
+    id: INTP_WEBSITE_ID,
+    domain: INTP_WEBSITE_DOMAIN,
+    package: {
+      id: PACKAGE_UUID,
+      billingDate: ISO_DATE_STRING, // (optional, defaults to current time)
     },
-    intpc: {
-        id: INTP_CUSTOMER_ID,
-    },
+  },
+  intpc: {
+    id: INTP_CUSTOMER_ID,
+  },
 });
 ```
-
 
 #### Create a website and attach it to an existing INTPc subscription. This website, alongside other pre-existing website will consume `touchpoints` from the same pool.
 
 ```js
 visa.websites.create({
-    website: {
-        id: INTP_WEBSITE_ID,
-        domain: INTP_WEBSITE_DOMAIN,
-    },
-    intpc: {
-        id: INTP_CUSTOMER_ID,
-    },
+  website: {
+    id: INTP_WEBSITE_ID,
+    domain: INTP_WEBSITE_DOMAIN,
+  },
+  intpc: {
+    id: INTP_CUSTOMER_ID,
+  },
 });
 ```
 
@@ -256,19 +269,18 @@ visa.websites.create({
 
 ```js
 visa.websites.create({
-    website: {
-        id: INTP_WEBSITE_ID,
-        domain: INTP_WEBSITE_DOMAIN,
-    },
-    intpc: {
-        id: INTP_CUSTOMER_ID,
-    },
-    opts: {
-        uft: true,
-    }
+  website: {
+    id: INTP_WEBSITE_ID,
+    domain: INTP_WEBSITE_DOMAIN,
+  },
+  intpc: {
+    id: INTP_CUSTOMER_ID,
+  },
+  opts: {
+    uft: true,
+  },
 });
 ```
-
 
 ### Website API
 
@@ -325,21 +337,95 @@ const response = {
 visa.website(INTP_WEBSITE_ID).listApiKeys();
 
 const response = {
-  payload: [{
-    id: string,              // Unique ID of the API key
-    name: string,            // Name of the API key
-    comment: string | null,  // Optional comment or description
-    createdAt: string,       // Creation timestamp (ISO string)
-    intpWebsiteId: string,   // Associated website ID
-    intpCustomerId: string   // Associated customer ID
-  }]
-}
+  payload: [
+    {
+      id: string, // Unique ID of the API key
+      name: string, // Name of the API key
+      comment: string | null, // Optional comment or description
+      createdAt: string, // Creation timestamp (ISO string)
+      intpWebsiteId: string, // Associated website ID
+      intpCustomerId: string, // Associated customer ID
+    },
+  ],
+};
 ```
 
 #### Delete api key
 
 ```js
 visa.website(INTP_WEBSITE_ID).deleteApiKey(id:string);
+```
+
+### Website Contributors API
+
+Manage contributors for a website and control their level of access.
+
+Any existing customer can be added as a contributor. If the customer doesn't exist yet, create them first before adding them as a contributor — no website is required at creation time.
+
+Once added, the contributor can access the dashboard normally via the dashboard iframe URL, where the website ID is the ID of the website they contribute to.
+
+If the website selector is enabled within the dashboard, the contributor will also see the website listed there, alongside any websites they own.
+
+Each contributor is assigned one of the following roles:
+
+| Role                             | Constant                    | Access                                                                                                                                                                                                           |
+| -------------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Editor**                       | `ContributorRole.editor`    | Full edit access, including content updates and structural changes.                                                                                                                                              |
+| **Watcher**                      | `ContributorRole.watcher`   | View-only access to website data. Cannot make any edits.                                                                                                                                                         |
+| **Custom Dashboard Contributor** | `ContributorRole.dashboard` | View-only access to custom dashboards explicitly shared with them. No access to any other platform content or settings. Access to specific dashboards is granted by the website owner from within the dashboard. |
+
+---
+
+#### Add a contributor to a website
+
+```typescript
+visa.website(INTP_WEBSITE_ID).addContributor({
+  intpCustomerId: "INTP_CUSTOMER_ID",
+  role: ContributorRole.editor,
+});
+```
+
+| Field            | Type              | Description                                              |
+| ---------------- | ----------------- | -------------------------------------------------------- |
+| `intpCustomerId` | `string`          | ID of the customer being added as a contributor.         |
+| `role`           | `ContributorRole` | Role assigned to the contributor. See roles table above. |
+
+---
+
+#### Delete a contributor from a website
+
+```typescript
+visa.website(INTP_WEBSITE_ID).deleteContributor({
+  intpCustomerId: "INTP_CUSTOMER_ID",
+});
+```
+
+| Field            | Type     | Description                                        |
+| ---------------- | -------- | -------------------------------------------------- |
+| `intpCustomerId` | `string` | ID of the customer being removed as a contributor. |
+
+---
+
+#### List contributors for a website
+
+```typescript
+const { owner, contributors } = await visa
+  .website(INTP_WEBSITE_ID)
+  .listContributors();
+```
+
+The response contains the website owner and a map of contributors grouped by role:
+
+```typescript
+type ListContributorsResponse = {
+  owner: ContributorInfo;
+  contributors: Record<keyof typeof ContributorRole, ContributorInfo[]>;
+};
+
+type ContributorInfo = {
+  intpCustomerId: string;
+  email: string;
+};
 ```
 
 ### API for managing a subscription of type `website`
@@ -405,7 +491,7 @@ visa.intpcSubscriptions.upgrade({
 
 ```js
 visa.intpcSubscriptions.downgrade({
-    intpcId: INTP_CUSTOMER_ID,
+  intpcId: INTP_CUSTOMER_ID,
   packageId: PACKAGE_UUID,
 });
 ```
@@ -414,7 +500,7 @@ visa.intpcSubscriptions.downgrade({
 
 ```js
 visa.intpcSubscriptions.cancel({
-    intpcId: INTP_CUSTOMER_ID,
+  intpcId: INTP_CUSTOMER_ID,
 });
 ```
 
@@ -422,7 +508,7 @@ visa.intpcSubscriptions.cancel({
 
 ```js
 visa.intpcSubscriptions.resume({
-    intpcId: INTP_CUSTOMER_ID,
+  intpcId: INTP_CUSTOMER_ID,
 });
 ```
 
@@ -430,7 +516,7 @@ visa.intpcSubscriptions.resume({
 
 ```js
 visa.intpcSubscriptions.deactivate({
-    intpcId: INTP_CUSTOMER_ID,
+  intpcId: INTP_CUSTOMER_ID,
 });
 ```
 
@@ -447,7 +533,6 @@ visa.auth.generateINTPAccessToken();
 ```js
 visa.auth.generateINTPcAccessToken(INTP_CUSTOMER_ID);
 ```
-
 
 ### INTP API
 

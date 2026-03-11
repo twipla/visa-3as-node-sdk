@@ -1,4 +1,9 @@
 import { HttpClient } from "../http-client";
+import {
+  AddWebsiteContributorArgs,
+  DeleteWebsiteContributorArgs,
+  ListContributorsResponse,
+} from "./types";
 import { ApiKey } from "./types/api-key";
 import { CreateApiKey } from "./types/create-api-key";
 import { Website } from "./types/website.type";
@@ -6,7 +11,7 @@ import { Website } from "./types/website.type";
 export class WebsiteApi {
   #externalWebsiteId: string = "";
 
-  constructor(private readonly httpClient: HttpClient) { }
+  constructor(private readonly httpClient: HttpClient) {}
 
   public setWebsiteId(externalId: string): WebsiteApi {
     this.#externalWebsiteId = externalId;
@@ -16,7 +21,7 @@ export class WebsiteApi {
 
   public async delete(): Promise<void> {
     await this.httpClient.delete<Website>(
-      `/v2/3as/websites/${this.#externalWebsiteId}`
+      `/v2/3as/websites/${this.#externalWebsiteId}`,
     );
   }
 
@@ -24,44 +29,73 @@ export class WebsiteApi {
     await this.httpClient.post<void>(
       `/v2/3as/websites/${this.#externalWebsiteId}/whitelisted-domains`,
       {
-        domain
-      }
+        domain,
+      },
     );
   }
 
   public async deleteWhitelistedDomain(domain: string): Promise<void> {
     await this.httpClient.update<void>(
-      `/v2/3as/websites/${this.#externalWebsiteId}/whitelisted-domains/`, {
-      domain
-    }
+      `/v2/3as/websites/${this.#externalWebsiteId}/whitelisted-domains/`,
+      {
+        domain,
+      },
     );
   }
 
   public async listWhitelistedDomains(): Promise<string[]> {
     const response = await this.httpClient.get<string[]>(
-      `/v2/3as/websites/${this.#externalWebsiteId}/whitelisted-domains`
+      `/v2/3as/websites/${this.#externalWebsiteId}/whitelisted-domains`,
     );
-    return response.getPayload()
+    return response.getPayload();
   }
 
   public async createApiKey(input: CreateApiKey): Promise<ApiKey> {
     const response = await this.httpClient.post<ApiKey>(
       `/v2/3as/websites/${this.#externalWebsiteId}/api-keys`,
       input,
-    )
-    return response.getPayload()
+    );
+    return response.getPayload();
   }
 
   public async listApiKeys(): Promise<ApiKey[]> {
     const response = await this.httpClient.get<ApiKey[]>(
       `/v2/3as/websites/${this.#externalWebsiteId}/api-keys`,
-    )
-    return response.getPayload()
+    );
+    return response.getPayload();
   }
 
   public async deleteApiKey(id: string): Promise<void> {
     await this.httpClient.delete(
       `/v2/3as/websites/${this.#externalWebsiteId}/api-keys/${id}`,
-    )
+    );
+  }
+
+  public async addContributor(args: AddWebsiteContributorArgs): Promise<void> {
+    await this.httpClient.post(
+      `/v3/3as/websites/${this.#externalWebsiteId}/contributors`,
+      {
+        intpCustomerId: args.intpCustomerId,
+        role: args.role,
+      },
+    );
+  }
+
+  public async deleteContributor(
+    args: DeleteWebsiteContributorArgs,
+  ): Promise<void> {
+    await this.httpClient.delete(
+      `/v3/3as/websites/${this.#externalWebsiteId}/contributors/${
+        args.intpCustomerId
+      }`,
+    );
+  }
+
+  public async listContributors(): Promise<ListContributorsResponse> {
+    const res = await this.httpClient.get<ListContributorsResponse>(
+      `/v3/3as/websites/${this.#externalWebsiteId}/contributors`,
+    );
+
+    return res.getPayload();
   }
 }
