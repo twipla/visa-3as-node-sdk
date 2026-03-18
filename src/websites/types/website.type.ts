@@ -7,6 +7,7 @@ export type Website = {
   intpWebsiteId: string;
   intpCustomerId: string;
   visaTrackingCode: string;
+  visaMaxPrivacyModeTrackingCode: string;
 
   domain: string;
   packageId: string;

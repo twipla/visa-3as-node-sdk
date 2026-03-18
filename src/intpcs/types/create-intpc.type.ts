@@ -6,7 +6,7 @@ export type CreateIntpc = {
   packageId?: string;
   billingDate?: string;
 
-  website: {
+  website?: {
     intpWebsiteId: string;
     domain: string;
 
